@@ -151,6 +151,7 @@ class NotesOnBeatIterator {
     let scaleLength = this.sequence.tuning.length;
     let note = this.nextIndex % scaleLength;
     let octave = this.sequence.lowOctave + Math.floor(this.nextIndex / scaleLength);
+    this.nextIndex++;
     return this.sequence.tuning.getNoteInOctave(octave, note);
   }
 }
@@ -227,9 +228,7 @@ class Scheduler {
     ) {
       // Iterate through notes in sequence at the current beat
       let iterator = this.sequence.getIteratorAtBeat(this.currentNoteIndex);
-      console.log(iterator);
       while (iterator.hasNext) {
-	console.log("while");
 	this.scheduleNote(iterator.next, this.currentNoteIndex, this.nextNoteTime);
       }
       this.nextNote();
@@ -248,7 +247,6 @@ function main() {
   sequence.setNote(0, 3, 0);
   sequence.setNote(3, 4, 0);
   sequence.setNote(6, 4, 1);
-  console.log(sequence);
   const scheduler = new Scheduler(sequence);
   scheduler.lookAheadAndSchedule();
 }
