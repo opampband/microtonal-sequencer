@@ -46,7 +46,7 @@ class EDOTuning extends Tuning {
     super();
     this.referencePitch = referencePitch;
     this.divisions = divisions;
-    
+
     for (let i = 0; i < divisions; ++i) {
       this.pitches.push(this.referencePitch * Math.pow(this.ratio, i));
     }
@@ -88,7 +88,7 @@ class Sequence {
     for (let i = 0; i < this.beats; ++i) {
       this.seq.push([]);
       for (let j = 0; j < this.tuning.length * numOctaves; ++j) {
-	this.seq[i].push(false);
+        this.seq[i].push(false);
       }
     }
   }
@@ -98,9 +98,60 @@ class Sequence {
   }
 
   setNote(beat, octave, noteIndex) {
+    this.seq[beat][
+      (octave - this.lowOctave) * this.tuning.length + noteIndex
+    ] = true;
   }
 
   unsetNote(beat, octave, noteIndex) {
+    this.seq[beat][
+      (octave - this.lowOctave) * this.tuning.length + noteIndex
+    ] = false;
+  }
+
+  getIteratorAtBeat(beat) {
+    return new NotesOnBeatIterator(this, beat);
+  }
+}
+
+/**
+ * Iterates through notes in a sequence on a given beat.
+ * The intention of this class is to decouple the Sequence classs from the
+ * Scheduler class without doing something inefficient like having the Sequence
+ * create a new array and pass it to the Scheduler.
+ */
+class NotesOnBeatIterator {
+  constructor(sequence, beat) {
+    this.sequence = sequence;
+    this.beat = beat;
+    this.beatArray = this.sequence.seq[beat];
+    // Index of next note to return
+    this.nextIndex = 0;
+  }
+
+  advanceToNextActiveNote() {
+    while (this.nextIndex < this.beatArray.length) {
+      if (this.beatArray[this.nextIndex]) {
+	break;
+      }
+      this.nextIndex++;
+    }
+  }
+
+  get hasNext() {
+    this.advanceToNextActiveNote();
+    if (this.nextIndex < this.beatArray.length) {
+      return true;
+    }
+    return false;
+  }
+
+  get next() {
+    this.advanceToNextActiveNote();
+    let scaleLength = this.sequence.tuning.length;
+    let note = this.nextIndex % scaleLength;
+    let octave = this.sequence.lowOctave + Math.floor(this.nextIndex / scaleLength);
+    return this.sequence.tuning.getNoteInOctave(octave, note);
   }
 }
 
@@ -108,10 +159,13 @@ class Sequence {
  * Handles scheduling of notes in a Sequence.
  */
 class Scheduler {
-  constructor() {
+  /**
+   * @param sequence The sequence that is to be played.
+   */
+  constructor(sequence) {
     this.audioCtx = new AudioContext();
     this.bpm = 120.0;
-    this.sequenceLength = 8; // number of beats in sequence
+    this.sequence = sequence;
     this.noteDuration = 0.1; // duration of note sound (seconds)
     // period in which to call lookAheadAndSchedule again (milliseconds)
     this.lookAheadAndSchedulePeriod = 25.0;
@@ -135,7 +189,7 @@ class Scheduler {
     this.nextNoteTime += period;
 
     this.currentNoteIndex++;
-    this.currentNoteIndex %= this.sequenceLength;
+    this.currentNoteIndex %= this.sequence.length;
   }
 
   /**
@@ -171,7 +225,13 @@ class Scheduler {
       this.nextNoteTime <
       this.audioCtx.currentTime + this.scheduleAheadTime
     ) {
-      this.scheduleNote(220, this.currentNoteIndex, this.nextNoteTime);
+      // Iterate through notes in sequence at the current beat
+      let iterator = this.sequence.getIteratorAtBeat(this.currentNoteIndex);
+      console.log(iterator);
+      while (iterator.hasNext) {
+	console.log("while");
+	this.scheduleNote(iterator.next, this.currentNoteIndex, this.nextNoteTime);
+      }
       this.nextNote();
     }
 
@@ -183,16 +243,14 @@ class Scheduler {
 }
 
 function main() {
-  const scheduler = new Scheduler();
-  scheduler.lookAheadAndSchedule();
-
-  let tuning = new EDOTuning(440, 12);
+  const tuning = new EDOTuning(440, 12);
   let sequence = new Sequence(8, tuning, 3, 4);
+  sequence.setNote(0, 3, 0);
+  sequence.setNote(3, 4, 0);
+  sequence.setNote(6, 4, 1);
   console.log(sequence);
-  console.log(tuning.getNoteInOctave(3, 0));
-  console.log(tuning.getNoteInOctave(3, 1));
-  console.log(tuning.getNoteInOctave(5, 0));
-  console.log(tuning.getNoteInOctave(5, 1));
+  const scheduler = new Scheduler(sequence);
+  scheduler.lookAheadAndSchedule();
 }
 
 main();
