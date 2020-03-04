@@ -13,5 +13,50 @@
   <script src="js/main.js"></script>
 
   <h1>=|>- Microtonal Sequencer</h1>
+
+  <!--
+  Parameters that the user must set before the sequencer is launched.
+  -->
+  <h2>Setup Parameters</h2>
+  <form class="setup-params">
+    <div>
+      <label for="edo">Equal divisions of the octave:</label>
+      <input id="edo" type="number" placeholder="12" />
+    </div>
+
+    <!-- TODO make this a dynamic param -->
+    <div>
+      <label for="edo">Number of beats</label>
+      <input id="edo" type="number" placeholder="8" />
+    </div>
+
+    <div>
+      <input id="go" type="button" value="GO!" />
+    </div>
+  </div>
+
+  <!--
+  Parameters that the user can change while the sequencer is running.
+  -->
+  <h2>Dynamic Parameters</h2>
+  <form class="dynamic-params">
+    <div>
+      <label for="tempo">Tempo (BPM):</label>
+      <input id="tempo" type="number" placeholder="120" />
+    </div>
+
+    <div>
+      <label for="waveform">Waveform:</label>
+      <select id="waveform">
+	<option value="sine">sine</option>
+	<option value="square">square</option>
+	<option value="sawtooth">sawtooth</option>
+	<option value="triangle">triangle</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Where the sequncer grid will go. -->
+  <div class="grid"></div>
 </body>
 </html>
