@@ -165,9 +165,7 @@ class Scheduler {
    */
   constructor(sequence) {
     this.audioCtx = new AudioContext();
-    this.bpm = 120.0;
     this.sequence = sequence;
-    this.noteDuration = 0.1; // duration of note sound (seconds)
     // period in which to call lookAheadAndSchedule again (milliseconds)
     this.lookAheadAndSchedulePeriod = 25.0;
     // period in which lookAheadAndSchedule will schedule notes ahead of time
@@ -180,6 +178,10 @@ class Scheduler {
 
     // used to store ID returned by setTimeout in case we need to cancel events
     this.timerID = null;
+
+    // Set defaults which may be changed by user later
+    this.bpm = 120.0;
+    this.waveform = "sine";
   }
 
   /**
@@ -207,7 +209,7 @@ class Scheduler {
     //this.playQueue.push({ noteIndex: noteIndex, scheduledTime: scheduledTime });
 
     let osc = this.audioCtx.createOscillator();
-    osc.type = "sine";
+    osc.type = this.waveform;
     osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
     // connect osc to output
     osc.connect(this.audioCtx.destination);
@@ -239,16 +241,117 @@ class Scheduler {
       this.lookAheadAndSchedulePeriod
     );
   }
+
+  setBPM(bpm) {
+    this.bpm = bpm;
+  }
+
+  /**
+   * Duration of note sound (seconds)
+   */
+  get noteDuration() {
+    return 1 / this.bpm * 60;
+  }
+
+  setWaveform(waveform) {
+    this.waveform = waveform;
+  }
+}
+
+class Driver {
+  /**
+   * Setup callbacks for inputs and get params to create sequencer.
+   */
+  setup() {
+    // Add callbacks for static params
+    let edo = this.getPlaceholderValue("edo");
+    this.addInputCallback("edo", e => {
+      edo = e.target.value;
+    });
+    let numBeats = this.getPlaceholderValue("numBeats");
+    this.addInputCallback("numBeats", e => {
+      numBeats = e.target.value;
+    });
+
+    // Ensure sequencer objects are not created if go is clicked more that
+    // once.
+    let clickedGo = false;
+    let goButton = document.getElementById("go");
+    goButton.addEventListener("click", e => {
+      if (edo === undefined
+	  || numBeats === undefined) {
+	console.log("One or more setup parameters undefined");
+	return;
+      }
+
+      if (clickedGo) {
+	console.log("GO button was already clicked");
+	return;
+      }
+      clickedGo = true;
+
+      // TODO make reference pitch a static param
+      this.tuning = new EDOTuning(440, edo);
+      // TODO make octaves static params
+      this.sequence = new Sequence(8, this.tuning, 3, 4);
+      this.scheduler = new Scheduler(this.sequence);
+
+      // Add callbacks for dynamic params that need a Scheduler instance
+      this.scheduler.setBPM(this.getPlaceholderValue("bpm"));
+      this.addInputCallback("bpm", e => {
+	this.scheduler.setBPM(e.target.value);
+      });
+
+      this.scheduler.setWaveform(this.getPlaceholderValue("waveform"));
+      this.addInputCallback("waveform", e => {
+	this.scheduler.setWaveform(e.target.value);
+      });
+
+      this.start();
+    });
+  }
+
+  /**
+   * Helper function to add a callback to an input element.
+   */
+  addInputCallback(id, callback) {
+    let element = document.getElementById(id);
+    element.addEventListener("input", callback);
+  }
+
+  /**
+   * Helper function to get the placeholder value of an input element.
+   * If a value already exists, it will return that value.
+   */
+  getPlaceholderValue(id) {
+    let element = document.getElementById(id);
+    if (element.value !== "") {
+      // Value may have been pre-filled by browser based on history.
+      // In this case, the pre-filled value takes precedence.
+      return element.value;
+    }
+    return element.placeholder;
+  }
+
+  renderGrid() {
+    // TODO
+    return;
+  }
+
+  /**
+   * Start the sequencer.
+   */
+  start() {
+    this.renderGrid();
+    console.log(this.scheduler);
+    this.scheduler.lookAheadAndSchedule();
+  }
+
 }
 
 function main() {
-  const tuning = new EDOTuning(440, 12);
-  let sequence = new Sequence(8, tuning, 3, 4);
-  sequence.setNote(0, 3, 0);
-  sequence.setNote(3, 4, 0);
-  sequence.setNote(6, 4, 1);
-  const scheduler = new Scheduler(sequence);
-  scheduler.lookAheadAndSchedule();
+  let driver = new Driver();
+  driver.setup();
 }
 
-main();
+window.onload = main;
