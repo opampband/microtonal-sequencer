@@ -97,6 +97,10 @@ class Sequence {
     return this.seq.length;
   }
 
+  get numOctaves() {
+    return this.highOctave - this.lowOctave + 1;
+  }
+
   setNote(beat, octave, noteIndex) {
     this.seq[beat][
       (octave - this.lowOctave) * this.tuning.length + noteIndex
@@ -293,7 +297,7 @@ class Driver {
       // TODO make reference pitch a static param
       this.tuning = new EDOTuning(440, edo);
       // TODO make octaves static params
-      this.sequence = new Sequence(8, this.tuning, 3, 4);
+      this.sequence = new Sequence(numBeats, this.tuning, 3, 4);
       this.scheduler = new Scheduler(this.sequence);
 
       // Add callbacks for dynamic params that need a Scheduler instance
@@ -322,6 +326,8 @@ class Driver {
   /**
    * Helper function to get the placeholder value of an input element.
    * If a value already exists, it will return that value.
+   *
+   * TODO refactor so that this is returned by addInputCallback
    */
   getPlaceholderValue(id) {
     let element = document.getElementById(id);
@@ -334,8 +340,37 @@ class Driver {
   }
 
   renderGrid() {
-    // TODO
-    return;
+    let numNotes = this.sequence.tuning.length * this.sequence.numOctaves;
+    let numBeats = this.sequence.length;
+
+    let gridContainerElement = document.getElementById("grid");
+
+    for (let i = 0; i < numNotes; ++i) {
+      let noteElement = document.createElement("div");
+      gridContainerElement.appendChild(noteElement);
+
+      let note = (numNotes - i - 1) % this.sequence.tuning.length;
+      let octave = this.sequence.lowOctave
+	  + Math.floor((numNotes - i - 1) / this.tuning.length);
+      // TODO make this a label element perhaps?
+      let noteLabel = document.createElement("span");
+      noteLabel.appendChild(document.createTextNode(octave + "-" + note));
+      noteElement.appendChild(noteLabel);
+
+      for (let j = 0; j < numBeats; ++j) {
+	let beatElement = document.createElement("input");
+	beatElement.type = "checkbox";
+	beatElement.addEventListener("input", e => {
+	  let beat = j;
+	  if (e.target.checked) {
+	    this.sequence.setNote(beat, octave, note);
+	  } else {
+	    this.sequence.unsetNote(beat, octave, note);
+	  }
+	});
+	noteElement.appendChild(beatElement);
+      }
+    }
   }
 
   /**
@@ -343,7 +378,6 @@ class Driver {
    */
   start() {
     this.renderGrid();
-    console.log(this.scheduler);
     this.scheduler.lookAheadAndSchedule();
   }
 
