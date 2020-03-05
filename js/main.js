@@ -41,7 +41,8 @@ class Tuning {
 
 class EDOTuning extends Tuning {
   /**
-   * @param referencePitch The frequency of A4.
+   * @param referencePitch The frequency of the first (index 0) note in the 4th
+   *                       octave.
    * @param divisions The number of divisions of the octave.
    *                  (e.g. 12 for 12 EDO)
    */
@@ -301,6 +302,8 @@ class Driver {
       clickedGo = true;
 
       // TODO make reference pitch a static param
+      // Calculate frequency of C4 by moving 9 semitones down from A4
+      const C4 = 440 * Math.pow(Math.pow(2, 1 / 12), -9);
       this.tuning = new EDOTuning(440, edo);
       // TODO make octaves static params
       this.sequence = new Sequence(numBeats, this.tuning, 3, 4);
