@@ -14,6 +14,9 @@ class Tuning {
     this.pitches = [];
   }
 
+  /**
+   * The number of distinct pitches in one octave.
+   */
   get length() {
     return this.pitches.length;
   }
@@ -93,6 +96,9 @@ class Sequence {
     }
   }
 
+  /**
+   * The number of beats in the sequence.
+   */
   get length() {
     return this.seq.length;
   }
