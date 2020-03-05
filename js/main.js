@@ -276,6 +276,7 @@ class Driver {
   setup() {
     // Add callbacks for static params
     let edo = this.getPlaceholderValue("edo");
+    // TODO refactor code in callback into helper
     this.addInputCallback("edo", e => {
       edo = e.target.value;
     });
