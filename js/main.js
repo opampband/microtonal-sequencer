@@ -313,7 +313,12 @@ class Driver {
       // Add callbacks for dynamic params that need a Scheduler instance
       this.scheduler.setBPM(this.getPlaceholderValue("bpm"));
       this.addInputCallback("bpm", e => {
-	this.scheduler.setBPM(e.target.value);
+	let bpm = parseFloat(e.target.value);
+	if (bpm !== NaN
+	    && bpm > 0
+	    && bpm < Infinity) {
+	  this.scheduler.setBPM(e.target.value);
+	}
       });
 
       this.scheduler.setWaveform(this.getPlaceholderValue("waveform"));
