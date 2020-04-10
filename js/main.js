@@ -274,6 +274,10 @@ class Driver {
    * Setup callbacks for inputs and get params to create sequencer.
    */
   setup() {
+    // Hide dynamic parameters until sequence is running
+    let dynamicParamsElem = document.querySelector(".dynamic-params");
+    dynamicParamsElem.style.display = "none";
+
     // Add callbacks for static params
     let edo = this.getPlaceholderValue("edo");
     // TODO refactor code in callback into helper
@@ -301,6 +305,9 @@ class Driver {
 	return;
       }
       clickedGo = true;
+
+      // Show dynamic parameters
+      dynamicParamsElem.style.display = "block";
 
       // TODO make reference pitch a static param
       // Calculate frequency of C4 by moving 9 semitones down from A4

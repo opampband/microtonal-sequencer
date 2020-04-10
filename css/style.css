@@ -1,0 +1,56 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html {
+    background-color: #000000;
+}
+body {
+    font-family: 'Fira Code', monospace;
+    color: #de5d47;
+    font-size: 18px;
+    padding: 0 10% 10% 10%;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    margin-bottom: 1em;
+}
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    margin-top: 1em;
+}
+input, select {
+    background-color: #000000;
+    color: #de5d47;
+    border: 2px solid #de5d47;
+}
+.setup-params input, .dynamic-params input {
+    float: right;
+}
+.setup-params, .dynamic-params {
+    margin-bottom: 2rem;
+}
+#go {
+    float: none;
+    height: 100%;
+    padding: 0 5em;
+}
+#go:hover {
+    color: #000000;
+    background-color: #de5d47;
+}
+form div {
+    height: 3rem;
+}
+#grid div {
+    display: flex;
+}
+#grid span {
+    display: block;
+    width: 5em;
+}
+#grid input {
+    margin: 0.2rem;
+}

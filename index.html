@@ -6,7 +6,11 @@
 
   <title>=|>- Microtonal Sequencer</title>
 
+  <link href="https://fonts.googleapis.com/css?family=Fira+Code:300,400,500,600,700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
@@ -17,8 +21,8 @@
   <!--
   Parameters that the user must set before the sequencer is launched.
   -->
-  <h2>Setup Parameters</h2>
   <form class="setup-params">
+    <h2>Setup Parameters</h2>
     <div>
       <label for="edo">Equal divisions of the octave:</label>
       <input id="edo" type="number" placeholder="12" />
@@ -33,13 +37,13 @@
     <div>
       <input id="go" type="button" value="GO!" />
     </div>
-  </div>
+  </form>
 
   <!--
   Parameters that the user can change while the sequencer is running.
   -->
-  <h2>Dynamic Parameters</h2>
   <form class="dynamic-params">
+    <h2>Dynamic Parameters</h2>
     <div>
       <label for="bpm">Tempo (BPM):</label>
       <input id="bpm" type="number" placeholder="120" />
@@ -54,7 +58,7 @@
 	<option value="triangle">triangle</option>
       </select>
     </div>
-  </div>
+  </form>
 
   <!-- Where the sequncer grid will go. -->
   <div id="grid"></div>
