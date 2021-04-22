@@ -13,3 +13,7 @@
 - Dynamic resizing of sequence grid
 - Multiple sequences (like an 808 sequencer)
 - Restart button
+
+## References
+
+- https://www.html5rocks.com/en/tutorials/audio/scheduling/
